@@ -1,0 +1,24 @@
+{
+    "name": "clevai_auto",
+    "version": "1.1.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node index.js"
+    },
+    "engines": {
+        "node": "16.13.0"
+    },
+    "author": "Đức Hoàng FPT",
+    "license": "FPT Japan",
+    "dependencies": {
+        "archiver": "^5.3.0",
+        "axios": "^0.25.0",
+        "cors": "^2.8.5",
+        "express": "^4.17.2",
+        "form-data": "^4.0.0",
+        "multer": "^1.4.4",
+        "nodemailer": "^6.7.2"
+    }
+}

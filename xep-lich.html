@@ -1,0 +1,550 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1920, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://lms.clevai.edu.vn/logo.png" />
+    <title>Xếp lịch cho giáo viên</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<style>
+    select,
+    option,
+    label,
+    input,
+    td,
+    tr,
+    textarea,
+    .btn {
+        font: 16px'clevaiFont_normal', sans-serif!important;
+    }
+    
+    h2 {
+        font: 32px'Semibold_SF_Compact_Rounded', sans-serif!important;
+    }
+    
+    @font-face {
+        font-family: Semibold_SF_Compact_Rounded;
+        src: url(clevaiFont.ttf);
+    }
+    
+    @font-face {
+        font-family: clevaiFont_normal;
+        src: url(clevaiFont-normal.ttf);
+    }
+    
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    td,
+    th {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: center;
+        background-color: #a0b9ee;
+    }
+    
+    td:nth-child(11n+1) {
+        background-color: #d50000;
+        color: #fff;
+        padding-left: 20px;
+        padding-right: 20px;
+        font-weight: bold;
+    }
+    
+    td:nth-child(11n+2) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+3) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+4) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+8) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+9) {
+        background-color: #f7e3c9;
+    }
+    
+    select {
+        font-size: 15px;
+        text-align: left;
+        padding-top: 8px;
+        padding-right: 20px;
+        padding-bottom: 8px;
+        padding-left: 5px;
+    }
+    
+    .loading-overlay {
+        display: none;
+        background: rgba( 26, 26, 26, 0.7);
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        top: 0;
+    }
+    
+    .loading-overlay-image-container {
+        display: none;
+        position: fixed;
+        z-index: 7;
+        top: 50%;
+        left: 50%;
+        transform: translate( -50%, -50%);
+    }
+    
+    .loading-overlay-img {
+        border-radius: 5px;
+    }
+</style>
+
+<body>
+    <div class="loading-overlay"></div>
+    <div class="loading-overlay-image-container">
+        <h2 class="loading-overlay-img">Loading...</h2>
+    </div>
+    <h2 style="margin: 10px;">Liệt kê Giáo Viên</h2>
+    <label style="margin: 10px;">
+        Khối:
+    </label>
+    <select id="khoi" style="margin: 10px;">
+        <option value="tieu_hoc">Tiểu học</option>
+        <option value="trung_hoc">Trung học</option>
+    </select>
+    <br>
+    <label style="margin: 10px;">
+        Chọn ngày thứ 2 của tuần muốn xếp lịch:
+    </label>
+    <input type="date" id="ngay" style="margin: 10px;">
+    <br>
+    <textarea id="listGiaoVien" style="margin: 10px; width: 300px;height: 360px"></textarea>
+    <br>
+    <button class="btn btn-info" style="margin: 10px;" onclick="generateLich()">Xếp lịch</button>
+    <br>
+    <div id="thoiGianBieu" style="display: block; margin: 10px">
+    </div>
+
+</body>
+<script type="text/javascript">
+    let lichDay = [
+        '',
+        'Thứ 2',
+        'Thứ 3',
+        'Thứ 4',
+        'Thứ 5',
+        'Thứ 6',
+        'Thứ 7',
+        'Sáng 7',
+        'Chiều 7',
+        'Sáng CN',
+        'Chiều CN',
+    ];
+
+    function generateLich() {
+        let ngay = document.getElementById('ngay').value;
+        let khoi = document.getElementById('khoi').value;
+        let listGiaoVienHtml = document.getElementById('listGiaoVien').value;
+        if (!listGiaoVienHtml || !ngay || !khoi) {
+            alert("Không đủ dữ liệu");
+            return;
+        }
+        let listGiaoVien = listGiaoVienHtml.split('\n');
+
+        let thoiGianBieuHtml = document.getElementById('thoiGianBieu');
+        thoiGianBieuHtml.innerHTML = '';
+
+        if (khoi == 'tieu_hoc') {
+            // Tiểu học
+            themBang(thoiGianBieuHtml, listGiaoVien, null, '4');
+            themBang(thoiGianBieuHtml, listGiaoVien, null, '5');
+        } else {
+            // Trung học
+            themBang(thoiGianBieuHtml, listGiaoVien, null, '6');
+            themBang(thoiGianBieuHtml, listGiaoVien, null, '7');
+            themBang(thoiGianBieuHtml, listGiaoVien, null, '8');
+        }
+
+        // Them nut
+        thoiGianBieuHtml.appendChild(document.createElement('br'));
+        var submitButton = document.createElement('button');
+        submitButton.setAttribute('onclick', 'submit()');
+        submitButton.setAttribute('class', 'btn btn-primary');
+        submitButton.innerHTML = 'Lưu lịch giảng dạy';
+        thoiGianBieuHtml.appendChild(submitButton);
+    }
+
+    function themBang(thoiGianBieuHtml, listGiaoVien, recoveryData, lop) {
+        thoiGianBieuHtml.appendChild(document.createElement('br'));
+        let lopHeader = document.createElement('h2');
+        lopHeader.innerHTML = 'Khối ' + lop;
+        thoiGianBieuHtml.appendChild(lopHeader);
+        let table = document.createElement('table');
+        thoiGianBieuHtml.append(table);
+
+        // Them Header
+        var header = document.createElement('tr');
+        lichDay.forEach(day => {
+            let td = document.createElement('td');
+            td.innerHTML = day;
+            header.appendChild(td);
+        });
+        table.appendChild(header);
+
+        /// Them hang
+        themHang(table, 'A', listGiaoVien, recoveryData, lop);
+        themHang(table, 'B', listGiaoVien, recoveryData, lop);
+        themHang(table, 'C', listGiaoVien, recoveryData, lop);
+    }
+
+    function themHang(table, cot1, listGiaoVien, recoveryData, lop) {
+        var hang = document.createElement('tr');
+        var dauHang = document.createElement('td');
+        dauHang.innerHTML = cot1;
+        hang.appendChild(dauHang);
+        for (const a in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) {
+            var td = document.createElement('td');
+            var select = document.createElement('select');
+            select.setAttribute('id', lop + cot1 + a);
+
+            // Option dau tien la empty
+            var optionFirst = document.createElement('option');
+            optionFirst.innerHTML = '';
+            optionFirst.setAttribute('value', '');
+            select.appendChild(optionFirst);
+            // Thêm các giáo viên sau
+            for (const giaoVien of listGiaoVien) {
+                if (giaoVien) {
+                    var option = document.createElement('option');
+                    option.innerHTML = giaoVien;
+                    option.setAttribute('value', giaoVien);
+                    select.appendChild(option);
+                }
+            }
+            if (recoveryData) {
+                select.value = recoveryData[cot1 + a];
+            }
+            td.appendChild(select);
+            hang.appendChild(td);
+        }
+        table.appendChild(hang);
+    }
+
+    async function submit() {
+        let khoi = document.getElementById('khoi').value;
+        loading(true);
+        if (khoi == 'tieu_hoc') {
+            var khoi4 = '';
+            var khoi5 = '';
+            var function4 = new Promise(async(done) => {
+                try {
+                    khoi4 = await save({
+                        lop: '4'
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
+                done();
+            });
+            var function5 = new Promise(async(done) => {
+                try {
+                    khoi5 = await save({
+                        lop: '5'
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
+                done();
+            });
+            await Promise.all([
+                function4,
+                function5
+            ]);
+            loading(false);
+            alert(khoi4 == 'success' ? 'Đã lưu khối 4' : 'Chưa lưu khối 4');
+            alert(khoi5 == 'success' ? 'Đã lưu khối 5' : 'Chưa lưu khối 5');
+        } else {
+            var khoi6 = '';
+            var khoi7 = '';
+            var khoi8 = '';
+            var function6 = new Promise(async(done) => {
+                try {
+                    khoi6 = await save({
+                        lop: '6'
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
+                done();
+            });
+            var function7 = new Promise(async(done) => {
+                try {
+                    khoi7 = await save({
+                        lop: '7'
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
+                done();
+            });
+            var function8 = new Promise(async(done) => {
+                try {
+                    khoi8 = await save({
+                        lop: '8'
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
+                done();
+            });
+            await Promise.all([
+                function6,
+                function7,
+                function8,
+            ])
+            loading(false);
+            alert(khoi6 == 'success' ? 'Đã lưu khối 6' : 'Chưa lưu khối 6');
+            alert(khoi7 == 'success' ? 'Đã lưu khối 7' : 'Chưa lưu khối 7');
+            alert(khoi8 == 'success' ? 'Đã lưu khối 8' : 'Chưa lưu khối 8');
+        }
+    }
+
+    async function save({
+        lop: lop
+    }) {
+        var data = new FormData();
+        for (const a in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) {
+            let keyA = 'A' + a;
+            let keyB = 'B' + a;
+            let keyC = 'C' + a;
+            data.append(keyA, document.getElementById(lop + keyA).value);
+            data.append(keyB, document.getElementById(lop + keyB).value);
+            data.append(keyC, document.getElementById(lop + keyC).value);
+        }
+
+        // Ngay va khoi
+        let ngay = document.getElementById('ngay').value;
+        let khoi = lop;
+        var listGiaoVien = document.getElementById('listGiaoVien').value;
+        let listGiaoVienTemp = listGiaoVien.split('\n');
+        listGiaoVien = '';
+        for (const giaoVien of listGiaoVienTemp) {
+            if (giaoVien) {
+                listGiaoVien += giaoVien + ',';
+            }
+        }
+        listGiaoVien = listGiaoVien.substring(0, listGiaoVien.length - 1);
+        data.append('ngay', ngay);
+        data.append('khoi', khoi);
+        data.append('listGiaoVien', listGiaoVien);
+        // for (var key of data.entries()) {
+        //     console.log(key[0] + ', ' + key[1]);
+        // }
+        try {
+            let response = await fetch("/xep-lich", {
+                "body": data,
+                "method": "POST",
+            })
+            let res = await response.json();
+            if (res.message && res.message == "success") {
+                return 'success';
+            } else {
+                console.log(res);
+                return 'fail';
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async function backFromOldSchedule() {
+        let ngay = document.getElementById('ngay').value;
+        let khoi = document.getElementById('khoi').value;
+        if (!ngay || !khoi) {
+            return;
+        }
+        let thoiGianBieuHtml = document.getElementById('thoiGianBieu');
+        thoiGianBieuHtml.innerHTML = '';
+        document.getElementById('listGiaoVien').value = '';
+        loading(true);
+        if (khoi == 'tieu_hoc') {
+            var khoi4 = false;
+            var khoi5 = false;
+            var function4 = new Promise(async(done) => {
+                try {
+                    khoi4 = await getLich({
+                        lop: '4',
+                        ngay: ngay,
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+                done();
+            });
+            var function5 = new Promise(async(done) => {
+                try {
+                    khoi5 = await getLich({
+                        lop: '5',
+                        ngay: ngay,
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+                done();
+            });
+            await Promise.all([
+                function4,
+                function5,
+            ]);
+            loading(false);
+            if (!khoi4 && !khoi5) {
+                alert('Khối [Tiểu học]: Ngày ' + ngay + ' chưa được xếp lịch');
+                return;
+            }
+            let listGiaoVien = document.getElementById('listGiaoVien');
+            listGiaoVien.value = '';
+            listGiaoVienData = khoi4.listGiaoVien ? khoi4.listGiaoVien : khoi5.listGiaoVien;
+            for (const giaoVien of listGiaoVienData.split(',')) {
+                if (giaoVien) {
+                    listGiaoVien.value += giaoVien + '\n';
+                }
+            }
+            themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi4, '4')
+            themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi5, '5')
+                // Them nut
+            thoiGianBieuHtml.appendChild(document.createElement('br'));
+            var submitButton = document.createElement('button');
+            submitButton.setAttribute('onclick', 'submit()');
+            submitButton.setAttribute('class', 'btn btn-primary');
+            submitButton.innerHTML = 'Lưu lịch giảng dạy';
+            thoiGianBieuHtml.appendChild(submitButton);
+        } else {
+            // Trung hoc
+            var khoi6 = false;
+            var khoi7 = false;
+            var khoi8 = false;
+            var function6 = new Promise(async(done) => {
+                try {
+                    khoi6 = await getLich({
+                        lop: '6',
+                        ngay: ngay,
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+                done();
+            });
+            var function7 = new Promise(async(done) => {
+                try {
+                    khoi7 = await getLich({
+                        lop: '7',
+                        ngay: ngay,
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+                done();
+            });
+            var function8 = new Promise(async(done) => {
+                try {
+                    khoi8 = await getLich({
+                        lop: '8',
+                        ngay: ngay,
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+                done();
+            });
+            await Promise.all([
+                function6,
+                function7,
+                function8,
+            ]);
+            loading(false);
+            if (!khoi6 && !khoi7 && !khoi8) {
+                alert('Khối [Trung học]: Ngày ' + ngay + ' chưa được xếp lịch');
+                return;
+            }
+            let listGiaoVien = document.getElementById('listGiaoVien');
+            listGiaoVien.value = '';
+            listGiaoVienData = khoi6.listGiaoVien ? khoi6.listGiaoVien : khoi7.listGiaoVien ? khoi7.listGiaoVien : khoi8.listGiaoVien;
+            for (const giaoVien of listGiaoVienData.split(',')) {
+                if (giaoVien) {
+                    listGiaoVien.value += giaoVien + '\n';
+                }
+            }
+            themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi6, '6')
+            themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi7, '7')
+            themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi8, '8')
+                // Them nut
+            thoiGianBieuHtml.appendChild(document.createElement('br'));
+            var submitButton = document.createElement('button');
+            submitButton.setAttribute('onclick', 'submit()');
+            submitButton.setAttribute('class', 'btn btn-primary');
+            submitButton.innerHTML = 'Lưu lịch giảng dạy';
+            thoiGianBieuHtml.appendChild(submitButton);
+        }
+    }
+
+    async function getLich({
+        lop: lop,
+        ngay: ngay,
+    }) {
+        try {
+            var date = new Date(ngay);
+            let sheetName = `${lop}_${date.getDate()}.${date.getMonth()+1}.${date.getYear()+1900}`;
+            let response = await fetch("https://script.google.com/macros/s/AKfycbytw2lBLbHgC3Mdu0zn8CmUSSd6_3A7xtxIjGXs2yKQgkjFLz99cirmrJkZ4dNG9ZO8/exec?sheetName=" + sheetName, {
+                "method": "GET",
+            })
+            let res = await response.json();
+
+            if (res.result && res.result == "success") {
+                return res.data;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Everything except weekend days
+    const validate = dateString => {
+        const day = (new Date(dateString)).getDay();
+        if (day == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    // Sets the value to '' in case of an invalid date
+    document.getElementById('ngay').onblur = evt => {
+        if (!validate(evt.target.value)) {
+            evt.target.value = '';
+        } else {
+            backFromOldSchedule();
+        }
+    }
+
+    document.getElementById('khoi').onblur = evt => {
+        backFromOldSchedule();
+    }
+
+    function loading(loading) {
+        document.getElementsByClassName('loading-overlay-image-container')[0].style.display = !loading ? 'none' : 'block';
+        document.getElementsByClassName('loading-overlay')[0].style.display = !loading ? 'none' : 'block';
+    }
+</script>
+
+</html>

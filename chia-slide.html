@@ -1,0 +1,396 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1920, initial-scale=1.0">
+    <title>Clevai Xếp lịch giáo viên</title>
+    <link rel="icon" type="image/png" href="https://lms.clevai.edu.vn/logo.png" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<style>
+    select,
+    option,
+    label,
+    input,
+    td,
+    tr,
+    textarea,
+    .btn {
+        font: 16px'clevaiFont_normal', sans-serif!important;
+    }
+    
+    h2 {
+        font: 32px'Semibold_SF_Compact_Rounded', sans-serif!important;
+    }
+    
+    @font-face {
+        font-family: Semibold_SF_Compact_Rounded;
+        src: url(clevaiFont.ttf);
+    }
+    
+    @font-face {
+        font-family: clevaiFont_normal;
+        src: url(clevaiFont-normal.ttf);
+    }
+    
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    td,
+    th {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: center;
+        background-color: #a0b9ee;
+    }
+    
+    td:nth-child(11n+1) {
+        background-color: #d50000;
+        color: #fff;
+        padding-left: 20px;
+        padding-right: 20px;
+        font-weight: bold;
+    }
+    
+    td:nth-child(11n+2) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+3) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+4) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+8) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(11n+9) {
+        background-color: #f7e3c9;
+    }
+    
+    select {
+        font-size: 15px;
+        text-align: left;
+        padding-top: 8px;
+        padding-right: 20px;
+        padding-bottom: 8px;
+        padding-left: 5px;
+    }
+    
+    .loading-overlay {
+        display: none;
+        background: rgba( 26, 26, 26, 0.7);
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        top: 0;
+    }
+    
+    .loading-overlay-image-container {
+        display: none;
+        position: fixed;
+        z-index: 7;
+        top: 50%;
+        left: 50%;
+        transform: translate( -50%, -50%);
+    }
+    
+    .loading-overlay-img {
+        border-radius: 5px;
+    }
+</style>
+
+<body>
+    <div class="loading-overlay"></div>
+    <div class="loading-overlay-image-container">
+        <h2 class="loading-overlay-img">Loading...</h2>
+    </div>
+    <h2 style="margin: 10px;">Liệt kê Giáo Viên</h2>
+    <label style="margin: 10px;">
+        Khối:
+    </label>
+    <select id="khoi" style="margin: 10px;">
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+    </select>
+    <br>
+    <label style="margin: 10px;">
+        Chọn ngày thứ 2 của tuần muốn xếp lịch:
+    </label>
+    <input type="date" id="ngay" style="margin: 10px;">
+    <br>
+    <textarea readonly id="listGiaoVien" style="margin: 10px; width: 300px;height: 360px"></textarea>
+    <br>
+    <br>
+    <div id="thoiGianBieu" style="display: block; margin: 10px">
+    </div>
+    <div id='chonFile' style="display: none;margin: 10px">
+        <br>
+        <!-- /// A -->
+        <H2>Lớp A</H2>
+        <label for="A1">Lớp A bài 1:</label>
+        <input type="file" id="powerpointA1" name="A1"><br><br>
+        <label for="A2">Lớp A bài 2:</label>
+        <input type="file" id="powerpointA2" name="A2"><br><br>
+
+        <!-- /// B -->
+        <H2>Lớp B</H2>
+        <label for="B1">Lớp B bài 1:</label>
+        <input type="file" id="powerpointB1" name="B1"><br><br>
+        <label for="B2">Lớp B bài 2:</label>
+        <input type="file" id="powerpointB2" name="B2"><br><br>
+
+        <!-- /// C -->
+        <H2>Lớp C</H2>
+        <label for="C1">Lớp C bài 1:</label>
+        <input type="file" id="powerpointC1" name="C1"><br><br>
+        <label for="C2">Lớp C bài 2:</label>
+        <input type="file" id="powerpointC2" name="C2"><br><br>
+    </div>
+    <button class="btn btn-primary" id='submitButton' style="display: none;margin: 10px" onclick="submit()">Export</button>
+
+</body>
+<script type="text/javascript">
+    let lichDay = [
+        '',
+        'Thứ 2',
+        'Thứ 3',
+        'Thứ 4',
+        'Thứ 5',
+        'Thứ 6',
+        'Thứ 7',
+        'Sáng 7',
+        'Chiều 7',
+        'Sáng CN',
+        'Chiều CN',
+    ];
+
+    function generateLich(recoveryData) {
+        let ngay = document.getElementById('ngay').value;
+        let khoi = document.getElementById('khoi').value;
+        let listGiaoVienHtml = document.getElementById('listGiaoVien').value;
+        if (!listGiaoVienHtml || !ngay || !khoi) {
+            console.log(ngay);
+            console.log(khoi);
+            alert("Không đủ dữ liệu");
+            return;
+        }
+        let listGiaoVien = listGiaoVienHtml.split('\n');
+
+        let thoiGianBieuHtml = document.getElementById('thoiGianBieu');
+        thoiGianBieuHtml.innerHTML = '';
+        let table = document.createElement('table');
+        thoiGianBieuHtml.append(table);
+
+        // Them Header
+        var header = document.createElement('tr');
+        lichDay.forEach(day => {
+            let td = document.createElement('td');
+            td.innerHTML = day;
+            header.appendChild(td);
+        });
+        table.appendChild(header);
+
+        /// Them hang
+        themHang(table, 'A', listGiaoVien, recoveryData);
+        themHang(table, 'B', listGiaoVien, recoveryData);
+        themHang(table, 'C', listGiaoVien, recoveryData);
+
+        // Them chon file
+        document.getElementById('chonFile').style.display = 'block';
+        document.getElementById('powerpointA1').value = '';
+        document.getElementById('powerpointA2').value = '';
+        document.getElementById('powerpointB1').value = '';
+        document.getElementById('powerpointB2').value = '';
+        document.getElementById('powerpointC1').value = '';
+        document.getElementById('powerpointC2').value = '';
+
+        // Them nut
+        document.getElementById('submitButton').style.display = 'block';
+    }
+
+    function themHang(table, cot1, listGiaoVien, recoveryData) {
+        var hang = document.createElement('tr');
+        var dauHang = document.createElement('td');
+        dauHang.innerHTML = cot1;
+        hang.appendChild(dauHang);
+        for (const a in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) {
+            var td = document.createElement('td');
+            var select = document.createElement('input');
+            select.setAttribute('id', cot1 + a);
+            select.setAttribute('readonly', true);
+            select.setAttribute('type', 'text');
+            select.style.width = '88px';
+            // Thêm các giáo viên sau
+            if (recoveryData) {
+                select.value = recoveryData[cot1 + a];
+            }
+            td.appendChild(select);
+            hang.appendChild(td);
+        }
+        table.appendChild(hang);
+    }
+
+    function submit() {
+        var data = new FormData();
+
+        // Ngay va khoi
+        let ngay = document.getElementById('ngay').value;
+        let khoi = document.getElementById('khoi').value;
+        data.append('ngay', ngay);
+        data.append('khoi', khoi);
+
+        for (const a in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) {
+            let keyA = 'A' + a;
+            let keyB = 'B' + a;
+            let keyC = 'C' + a;
+            // if (!document.getElementById(keyA).value) {
+            //     alert("Không đủ dữ liệu");
+            //     return;
+            // }
+            // if (!document.getElementById(keyB).value) {
+            //     alert("Không đủ dữ liệu");
+            //     return;
+            // }
+            // if (!document.getElementById(keyC).value) {
+            //     alert("Không đủ dữ liệu");
+            //     return;
+            // }
+            data.append(keyA, document.getElementById(keyA).value);
+            data.append(keyB, document.getElementById(keyB).value);
+            data.append(keyC, document.getElementById(keyC).value);
+        }
+        if (!document.getElementById('powerpointA1').files[0]) {
+            alert("Thiếu powerpoint Lớp " + khoi + "A bài 1");
+            return;
+        }
+        if (!document.getElementById('powerpointA2').files[0]) {
+            alert("Thiếu powerpoint Lớp " + khoi + "A bài 2");
+            return;
+        }
+        if (!document.getElementById('powerpointB1').files[0]) {
+            alert("Thiếu powerpoint Lớp " + khoi + "B bài 1");
+            return;
+        }
+        if (!document.getElementById('powerpointB2').files[0]) {
+            alert("Thiếu powerpoint Lớp " + khoi + "B bài 2");
+            return;
+        }
+        if (khoi == '4' || khoi == '5' || khoi == '6') {
+            if (!document.getElementById('powerpointC1').files[0]) {
+                alert("Thiếu powerpoint Lớp " + khoi + "C bài 1");
+                return;
+            }
+            if (!document.getElementById('powerpointC2').files[0]) {
+                alert("Thiếu powerpoint Lớp " + khoi + "C bài 2");
+                return;
+            }
+        }
+        data.append('powerpointA1', document.getElementById('powerpointA1').files[0]);
+        data.append('powerpointA2', document.getElementById('powerpointA2').files[0]);
+        data.append('powerpointB1', document.getElementById('powerpointB1').files[0]);
+        data.append('powerpointB2', document.getElementById('powerpointB2').files[0]);
+        data.append('powerpointC1', document.getElementById('powerpointC1').files[0]);
+        data.append('powerpointC2', document.getElementById('powerpointC2').files[0]);
+
+        // for (var key of data.entries()) {
+        //     console.log(key[0] + ', ' + key[1]);
+        // }
+        loading(true);
+        fetch("/sapXep", {
+                "body": data,
+                "method": "POST",
+            })
+            .then(response =>
+                response.json()
+            )
+            .then(res => {
+                loading(false);
+                window.location.assign('/download?tenFile=' + res.tenFile);
+            })
+            .catch((err) => {
+                loading(false);
+                alert(err);
+            });
+    }
+
+    function backFromOldSchedule() {
+        let ngay = document.getElementById('ngay').value;
+        let khoi = document.getElementById('khoi').value;
+        if (!ngay || !khoi) {
+            return;
+        }
+        loading(true);
+        var date = new Date(ngay);
+        let sheetName = `${khoi}_${date.getDate()}.${date.getMonth()+1}.${date.getYear()+1900}`;
+        fetch("https://script.google.com/macros/s/AKfycbytw2lBLbHgC3Mdu0zn8CmUSSd6_3A7xtxIjGXs2yKQgkjFLz99cirmrJkZ4dNG9ZO8/exec?sheetName=" + sheetName, {
+                "method": "GET",
+            })
+            .then(response =>
+                response.json()
+            )
+            .then(res => {
+                loading(false);
+                if (res.result && res.result == "success") {
+                    let listGiaoVien = document.getElementById('listGiaoVien');
+                    listGiaoVien.value = '';
+                    for (const giaoVien of res.data.listGiaoVien.split(',')) {
+                        listGiaoVien.value += giaoVien + '\n';
+                    }
+                    generateLich(res.data);
+                } else {
+                    let thoiGianBieuHtml = document.getElementById('thoiGianBieu');
+                    thoiGianBieuHtml.innerHTML = '';
+                    document.getElementById('listGiaoVien').value = '';
+                    document.getElementById('chonFile').style.display = 'none';
+                    document.getElementById('submitButton').style.display = 'none';
+                    alert('Ngày ' + ngay + ' Khối ' + khoi + ' chưa được xếp lịch.');
+                }
+            })
+            .catch((err) => {
+                loading(false);
+                alert(err);
+            });
+    }
+
+    // Everything except weekend days
+    const validate = dateString => {
+        const day = (new Date(dateString)).getDay();
+        if (day == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    // Sets the value to '' in case of an invalid date
+    document.getElementById('ngay').onblur = evt => {
+        if (!validate(evt.target.value)) {
+            evt.target.value = '';
+        } else {
+            backFromOldSchedule();
+        }
+    }
+
+    document.getElementById('khoi').onblur = evt => {
+        backFromOldSchedule();
+    }
+
+    function loading(loading) {
+        document.getElementsByClassName('loading-overlay-image-container')[0].style.display = !loading ? 'none' : 'block';
+        document.getElementsByClassName('loading-overlay')[0].style.display = !loading ? 'none' : 'block';
+    }
+</script>
+
+</html>
