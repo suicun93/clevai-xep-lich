@@ -374,7 +374,7 @@ app.post("/xep-lich", upload.fields([
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: 'hoaint@clevai.edu.vn',
+                    user: 'clevai.xep.lich@gmail.com',
                     pass: 'Hoai1234@@'
                 }
             });
