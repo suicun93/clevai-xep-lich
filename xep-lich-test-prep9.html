@@ -1,0 +1,367 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1920, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="https://lms.clevai.edu.vn/logo.png" />
+    <title>Test Prep 9 Xếp lịch cho giáo viên</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<style>
+    select,
+    option,
+    label,
+    input,
+    td,
+    tr,
+    textarea,
+    .btn {
+        font: 16px'clevaiFont_normal', sans-serif!important;
+    }
+    
+    h2 {
+        font: 32px'Semibold_SF_Compact_Rounded', sans-serif!important;
+    }
+    
+    @font-face {
+        font-family: Semibold_SF_Compact_Rounded;
+        src: url(clevaiFont.ttf);
+    }
+    
+    @font-face {
+        font-family: clevaiFont_normal;
+        src: url(clevaiFont-normal.ttf);
+    }
+    
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    td,
+    th {
+        border: 1px solid #dddddd;
+        padding: 8px;
+        text-align: center;
+        background-color: #a0b9ee;
+    }
+    
+    td:nth-child(7n+1) {
+        background-color: #d50000;
+        color: #fff;
+        padding-left: 20px;
+        padding-right: 20px;
+        font-weight: bold;
+    }
+    
+    td:nth-child(7n+2) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(7n+3) {
+        background-color: #f7e3c9;
+    }
+    
+    td:nth-child(7n+4) {
+        background-color: #f7e3c9;
+    }
+    
+    select {
+        font-size: 15px;
+        text-align: left;
+        padding-top: 8px;
+        padding-right: 20px;
+        padding-bottom: 8px;
+        padding-left: 5px;
+    }
+    
+    .loading-overlay {
+        display: none;
+        background: rgba( 26, 26, 26, 0.7);
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+        top: 0;
+    }
+    
+    .loading-overlay-image-container {
+        display: none;
+        position: fixed;
+        z-index: 7;
+        top: 50%;
+        left: 50%;
+        transform: translate( -50%, -50%);
+    }
+    
+    .loading-overlay-img {
+        border-radius: 5px;
+    }
+</style>
+
+<body>
+    <div class="loading-overlay"></div>
+    <div class="loading-overlay-image-container">
+        <h2 class="loading-overlay-img">Loading...</h2>
+    </div>
+    <h2 style="margin: 10px;">Liệt kê Giáo Viên</h2>
+    <label style="margin: 10px;">
+        Chọn ngày thứ 2 của tuần muốn xếp lịch:
+    </label>
+    <input type="date" id="ngay" style="margin: 10px;">
+    <br>
+    <textarea id="listGiaoVien" style="margin: 10px; width: 300px;height: 360px"></textarea>
+    <br>
+    <button class="btn btn-info" style="margin: 10px;" onclick="generateLich()">Xếp lịch</button>
+    <br>
+    <div id="thoiGianBieu" style="display: block; margin: 10px">
+    </div>
+
+</body>
+<script type="text/javascript">
+    let lichDay = [
+        '',
+        'Thứ 2',
+        'Thứ 3',
+        'Thứ 5',
+        'Thứ 6',
+        'Chiều 7',
+        'Chiều CN',
+    ];
+
+    function generateLich() {
+        let ngay = document.getElementById('ngay').value;
+        let listGiaoVienHtml = document.getElementById('listGiaoVien').value;
+        if (!listGiaoVienHtml || !ngay) {
+            alert("Không đủ dữ liệu");
+            return;
+        }
+        let listGiaoVien = listGiaoVienHtml.split('\n');
+
+        let thoiGianBieuHtml = document.getElementById('thoiGianBieu');
+        thoiGianBieuHtml.innerHTML = '';
+
+        // Khối 9
+        themBang(thoiGianBieuHtml, listGiaoVien, null, '9');
+
+
+        // Them nut
+        thoiGianBieuHtml.appendChild(document.createElement('br'));
+        var submitButton = document.createElement('button');
+        submitButton.setAttribute('onclick', 'submit()');
+        submitButton.setAttribute('class', 'btn btn-primary');
+        submitButton.innerHTML = 'Lưu lịch giảng dạy';
+        thoiGianBieuHtml.appendChild(submitButton);
+    }
+
+    function themBang(thoiGianBieuHtml, listGiaoVien, recoveryData, lop) {
+        thoiGianBieuHtml.appendChild(document.createElement('br'));
+        let lopHeader = document.createElement('h2');
+        lopHeader.innerHTML = 'Khối ' + lop;
+        thoiGianBieuHtml.appendChild(lopHeader);
+        let table = document.createElement('table');
+        thoiGianBieuHtml.append(table);
+
+        // Them Header
+        var header = document.createElement('tr');
+        lichDay.forEach(day => {
+            let td = document.createElement('td');
+            td.innerHTML = day;
+            header.appendChild(td);
+        });
+        table.appendChild(header);
+
+        /// Them hang
+        themHang(table, 'Giáo Viên', listGiaoVien, recoveryData, lop);
+        themHang(table, 'Back-up', listGiaoVien, recoveryData, lop);
+    }
+
+    function themHang(table, cot1, listGiaoVien, recoveryData, lop) {
+        var hang = document.createElement('tr');
+        var dauHang = document.createElement('td');
+        dauHang.innerHTML = cot1;
+        hang.appendChild(dauHang);
+        for (const a in [1, 1, 1, 1, 1, 1]) {
+            var td = document.createElement('td');
+            var select = document.createElement('select');
+            select.setAttribute('id', cot1 + a);
+
+            // Option dau tien la empty
+            var optionFirst = document.createElement('option');
+            optionFirst.innerHTML = '';
+            optionFirst.setAttribute('value', '');
+            select.appendChild(optionFirst);
+            // Thêm các giáo viên sau
+            for (const giaoVien of listGiaoVien) {
+                if (giaoVien) {
+                    var option = document.createElement('option');
+                    option.innerHTML = giaoVien;
+                    option.setAttribute('value', giaoVien);
+                    select.appendChild(option);
+                }
+            }
+            if (recoveryData) {
+                select.value = recoveryData[cot1 + a];
+            }
+            td.appendChild(select);
+            hang.appendChild(td);
+        }
+        table.appendChild(hang);
+    }
+
+    async function submit() {
+        loading(true);
+
+        var khoi9 = '';
+        var function9 = new Promise(async(done) => {
+            try {
+                khoi9 = await save();
+            } catch (e) {
+                console.log(e);
+            }
+            done();
+        });
+        await Promise.all([
+            function9
+        ]);
+        loading(false);
+        alert(khoi9 == 'success' ? 'Đã lưu khối 9' : 'Chưa lưu khối 9');
+    }
+
+    async function save() {
+        var data = new FormData();
+        for (const a in [1, 1, 1, 1, 1, 1, ]) {
+            let keyA = 'Giáo Viên' + a;
+            let keyB = 'Back-up' + a;
+            data.append(keyA, document.getElementById(keyA).value);
+            data.append(keyB, document.getElementById(keyB).value);
+        }
+
+        // Ngay va khoi
+        let ngay = document.getElementById('ngay').value;
+        var listGiaoVien = document.getElementById('listGiaoVien').value;
+        let listGiaoVienTemp = listGiaoVien.split('\n');
+        listGiaoVien = '';
+        for (const giaoVien of listGiaoVienTemp) {
+            if (giaoVien) {
+                listGiaoVien += giaoVien + ',';
+            }
+        }
+        listGiaoVien = listGiaoVien.substring(0, listGiaoVien.length - 1);
+        data.append('ngay', ngay);
+        data.append('listGiaoVien', listGiaoVien);
+        // for (var key of data.entries()) {
+        //     console.log(key[0] + ', ' + key[1]);
+        // }
+        try {
+            let response = await fetch("/xep-lich-test-prep9", {
+                "body": data,
+                "method": "POST",
+            })
+            let res = await response.json();
+            if (res.message && res.message == "success") {
+                return 'success';
+            } else {
+                console.log(res);
+                return 'fail';
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async function backFromOldSchedule() {
+        let ngay = document.getElementById('ngay').value;
+        if (!ngay) {
+            return;
+        }
+        let thoiGianBieuHtml = document.getElementById('thoiGianBieu');
+        thoiGianBieuHtml.innerHTML = '';
+        document.getElementById('listGiaoVien').value = '';
+        loading(true);
+        var khoi9 = false;
+        var function9 = new Promise(async(done) => {
+            try {
+                khoi9 = await getLich({
+                    ngay: ngay,
+                });
+            } catch (error) {
+                console.log(error);
+            }
+            done();
+        });
+
+        await Promise.all([
+            function9,
+        ]);
+        loading(false);
+        if (!khoi9) {
+            alert('Khối [9]: Ngày ' + ngay + ' chưa được xếp lịch');
+            return;
+        }
+        let listGiaoVien = document.getElementById('listGiaoVien');
+        listGiaoVien.value = '';
+        listGiaoVienData = khoi9.listGiaoVien;
+        for (const giaoVien of listGiaoVienData.split(',')) {
+            if (giaoVien) {
+                listGiaoVien.value += giaoVien + '\n';
+            }
+        }
+        themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi9, '9')
+            // Them nut
+        thoiGianBieuHtml.appendChild(document.createElement('br'));
+        var submitButton = document.createElement('button');
+        submitButton.setAttribute('onclick', 'submit()');
+        submitButton.setAttribute('class', 'btn btn-primary');
+        submitButton.innerHTML = 'Lưu lịch giảng dạy';
+        thoiGianBieuHtml.appendChild(submitButton);
+    }
+
+    async function getLich({
+        ngay: ngay,
+    }) {
+        try {
+            var date = new Date(ngay);
+            let sheetName = `${date.getDate()}.${date.getMonth()+1}.${date.getYear()+1900}`;
+            let response = await fetch("https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec?sheetName=" + sheetName, {
+                "method": "GET",
+            })
+            let res = await response.json();
+
+            if (res.result && res.result == "success") {
+                return res.data;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Everything except weekend days
+    const validate = dateString => {
+        const day = (new Date(dateString)).getDay();
+        if (day == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    // Sets the value to '' in case of an invalid date
+    document.getElementById('ngay').onblur = evt => {
+        if (!validate(evt.target.value)) {
+            evt.target.value = '';
+        } else {
+            backFromOldSchedule();
+        }
+    }
+
+    function loading(loading) {
+        document.getElementsByClassName('loading-overlay-image-container')[0].style.display = !loading ? 'none' : 'block';
+        document.getElementsByClassName('loading-overlay')[0].style.display = !loading ? 'none' : 'block';
+    }
+</script>
+
+</html>

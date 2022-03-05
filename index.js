@@ -16,7 +16,7 @@ var nodemailer = require('nodemailer');
 var FormData = require('form-data');
 const axios = require('axios');
 // Port
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 80;
 
 var storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -45,6 +45,12 @@ app.get("/xep-lich", function(req, res) {
 });
 app.get("/chia-slide", function(req, res) {
     res.sendFile(path.join(__dirname + '/chia-slide.html'));
+});
+app.get("/xep-lich-test-prep9", function(req, res) {
+    res.sendFile(path.join(__dirname + '/xep-lich-test-prep9.html'));
+});
+app.get("/chia-slide-test-prep9", function(req, res) {
+    res.sendFile(path.join(__dirname + '/chia-slide-test-prep9.html'));
 });
 app.get('/download', function(req, res) {
     res.download(
@@ -207,16 +213,16 @@ app.post("/sapXep", upload.fields([
     archive.directory(tenFile, false);
     await archive.finalize();
 
-    // Report lên API
-    var reportCach1 = async() => {
-        await report(dong5);
-        await report(dong4);
-        await report(dong3);
-        await report(dong2);
-        await report(dong1);
-        console.log('report 1 done');
-    };
-    reportCach1();
+    // // Report lên API
+    // var reportCach1 = async() => {
+    //     await report(dong5);
+    //     await report(dong4);
+    //     await report(dong3);
+    //     await report(dong2);
+    //     await report(dong1);
+    //     console.log('report 1 done');
+    // };
+    // reportCach1();
 
     // Report kieu cua Hoai
     var report2Data = {};
@@ -351,61 +357,52 @@ app.post("/xep-lich", upload.fields([
             }
         }
 
-        // Gửi mail:
-        if (lichHoc) {
-            var mail = '';
-            switch (khoi) {
-                case '4':
-                    mail = 'hoaint@clevai.edu.vn';
-                    break;
-                case '5':
-                    mail = 'hoaint@clevai.edu.vn';
-                    break;
-                case '6':
-                    mail = 'lanvt@clevai.edu.vn';
-                    break;
-                case '7':
-                    mail = 'lanvt@clevai.edu.vn';
-                    break;
-                case '8':
-                    mail = 'lanvt@clevai.edu.vn';
-                    break;
-            }
-            var transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'clevai.xep.lich@gmail.com',
-                    pass: 'Hoai1234@@'
-                }
-            });
-            var mailOptions = {
-                from: 'hoaint@clevai.edu.vn',
-                to: mail,
-                subject: '[' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
-                text: lichHoc,
-            };
-            var mailOptions2 = {
-                from: 'hoaint@clevai.edu.vn',
-                to: 'duchoang191@gmail.com',
-                subject: '[' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
-                text: lichHoc,
-            };
-            transporter.sendMail(mailOptions, function(error, info) {
-                if (error) {
-                    console.log('Email sent failed: ' + error);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
-            transporter.sendMail(mailOptions2, function(error, info) {
-                if (error) {
-                    console.log('Email sent failed: ' + error);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
-        }
+        // // Gửi mail:
+        // if (lichHoc) {
+        //     var transporter = nodemailer.createTransport({
+        //         service: 'gmail',
+        //         auth: {
+        //             user: 'clevai.xep.lich@gmail.com',
+        //             pass: 'Hoai1234@@'
+        //         }
+        //     });
+        //     var mailOptions2 = {
+        //         from: 'clevai.xep.lich@gmail.com',
+        //         to: 'duchoang191@gmail.com',
+        //         subject: '[' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
+        //         text: lichHoc,
+        //     };
+        //     transporter.sendMail(mailOptions2, function(error, info) {
+        //         if (error) {
+        //             console.log('Email sent failed: ' + error);
+        //         } else {
+        //             console.log('Email sent: ' + info.response);
+        //         }
+        //     });
+        // }
     }
+    // Gửi mail:
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'clevai.xep.lich@gmail.com',
+            pass: 'Hoai1234@@'
+        }
+    });
+    var mailOptions2 = {
+        from: 'clevai.xep.lich@gmail.com',
+        to: 'duchoang191@gmail.com',
+        subject: '[' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
+        text: JSON.stringify(req.body),
+    };
+    transporter.sendMail(mailOptions2, function(error, info) {
+        if (error) {
+            console.log('Email sent failed: ' + error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+
 
     // Ghi lại
     try {
@@ -431,24 +428,24 @@ app.post("/xep-lich", upload.fields([
     return;
 });
 
-async function report(data) {
-    try {
-        let sendData = getFormData(data);
-        let result = await axios.post(
-            'https://script.google.com/macros/s/AKfycbzjdX9TtcXXP6E7tkN2momjNIKSCrHMEzU_0BPz4c0LorUU8fqTIM6uv4pSvgntQt9bfQ/exec',
-            sendData, {
-                headers: sendData.getHeaders()
-            }
-        );
-        if (result.data && result.data.result == 'success') {
-            console.log('Report 1 Done');
-        } else {
-            console.log('Report 1 Failed');
-        }
-    } catch (error) {
-        console.log('report 1 failed: ' + error);
-    }
-}
+// async function report(data) {
+//     try {
+//         let sendData = getFormData(data);
+//         let result = await axios.post(
+//             'https://script.google.com/macros/s/AKfycbzjdX9TtcXXP6E7tkN2momjNIKSCrHMEzU_0BPz4c0LorUU8fqTIM6uv4pSvgntQt9bfQ/exec',
+//             sendData, {
+//                 headers: sendData.getHeaders()
+//             }
+//         );
+//         if (result.data && result.data.result == 'success') {
+//             console.log('Report 1 Done');
+//         } else {
+//             console.log('Report 1 Failed');
+//         }
+//     } catch (error) {
+//         console.log('report 1 failed: ' + error);
+//     }
+// }
 async function report2(data) {
     try {
         let sendData = getFormData({
@@ -619,3 +616,302 @@ function getFormData(object) {
     Object.keys(object).forEach(key => formData.append(key, object[key]));
     return formData;
 }
+
+// Test Prep 9................................................................................................
+// Xep lich của chị Hương
+app.post("/xep-lich-test-prep9", upload.fields([
+    { name: 'listGiaoVien', maxCount: 1 },
+    { name: 'ngay', maxCount: 1 },
+    { name: 'Giáo Viên0', maxCount: 1 },
+    { name: 'Giáo Viên1', maxCount: 1 },
+    { name: 'Giáo Viên2', maxCount: 1 },
+    { name: 'Giáo Viên3', maxCount: 1 },
+    { name: 'Giáo Viên4', maxCount: 1 },
+    { name: 'Giáo Viên5', maxCount: 1 },
+    { name: 'Back-up0', maxCount: 1 },
+    { name: 'Back-up1', maxCount: 1 },
+    { name: 'Back-up2', maxCount: 1 },
+    { name: 'Back-up3', maxCount: 1 },
+    { name: 'Back-up4', maxCount: 1 },
+    { name: 'Back-up5', maxCount: 1 },
+]), async(req, res) => {
+    console.log(req.body);
+    console.log(req.files);
+    var ngay = req.body.ngay;
+    var day = new Date(ngay);
+
+    // Check xem lịch cũ có chưa
+    let sheetName = `${day.getDate()}.${day.getMonth()+1}.${day.getYear()+1900}`;
+    var lichCu;
+    try {
+        var ahihi = await axios.get(
+            'https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec?sheetName=' + sheetName, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            },
+        );
+        lichCu = ahihi.data;
+    } catch (er) {
+        console.error(er);
+    }
+
+    if (lichCu && lichCu.result == 'success') {
+        var lichHoc = '';
+        for (var soThuTu in [1, 1, 1, 1, 1, 1]) {
+            let keyA = 'Giáo Viên' + soThuTu;
+            let keyB = 'Back-up' + soThuTu;
+            if (lichCu.data[keyA] != req.body[keyA]) {
+                lichHoc +=
+                    'Đã chuyển khối 9 ngày ' + sheetName +
+                    ' Giáo viên [' + 'Chính thức' + '] buổi [' + getDayTestPrep9(day, soThuTu).fullDate +
+                    '] từ [' + lichCu.data[keyA] + '] sang [' + req.body[keyA] + ']\n';
+            }
+            if (lichCu.data[keyB] != req.body[keyB]) {
+                lichHoc +=
+                    'Đã chuyển khối 9 ngày ' + sheetName +
+                    ' Giáo viên [' + 'Back up' + '] buổi [' + getDayTestPrep9(day, soThuTu).fullDate +
+                    '] từ [' + lichCu.data[keyB] + '] sang [' + req.body[keyB] + ']\n';
+            }
+        }
+
+        // // Gửi mail:
+        // if (lichHoc) {
+        //     var transporter = nodemailer.createTransport({
+        //         service: 'gmail',
+        //         auth: {
+        //             user: 'clevai.xep.lich@gmail.com',
+        //             pass: 'Hoai1234@@'
+        //         }
+        //     });
+        //     var mailOptions2 = {
+        //         from: 'clevai.xep.lich@gmail.com',
+        //         to: 'duchoang191@gmail.com',
+        //         subject: '[Lớp 9 Test_Prep_' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
+        //         text: lichHoc,
+        //     };
+        //     transporter.sendMail(mailOptions2, function(error, info) {
+        //         if (error) {
+        //             console.log('Email sent failed: ' + error);
+        //         } else {
+        //             console.log('Email sent: ' + info.response);
+        //         }
+        //     });
+        // }
+    }
+    // Gửi mail:
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'clevai.xep.lich@gmail.com',
+            pass: 'Hoai1234@@'
+        }
+    });
+    var mailOptions2 = {
+        from: 'clevai.xep.lich@gmail.com',
+        to: 'duchoang191@gmail.com',
+        subject: '[Lớp 9 Test_Prep_' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
+        text: JSON.stringify(req.body),
+    };
+    transporter.sendMail(mailOptions2, function(error, info) {
+        if (error) {
+            console.log('Email sent failed: ' + error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+
+    // Ghi lại
+    try {
+        req.body['sheetName'] = sheetName;
+        let sendData = getFormData(req.body);
+        let result = await axios.post(
+            'https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec',
+            sendData, {
+                headers: sendData.getHeaders(),
+            },
+        );
+        if (result.data && result.data.result == 'success') {
+            res.status(200).send({ "message": 'success' });
+        } else {
+            console.log('Xep lich fail: ' + JSON.stringify(result));
+            res.status(200).send({ "message": 'failed' });
+        }
+    } catch (error) {
+        console.log('Xep lich fail: ' + JSON.stringify(error));
+        res.status(200).send({ "message": 'failed ' + error });
+    }
+
+    return;
+});
+
+function getDayTestPrep9(ngay, soThuTu) {
+    var lech = 0;
+    var buoi = '';
+    switch (soThuTu) {
+        case '0':
+            lech = 0;
+            buoi = 'Tối';
+            break;
+        case '1':
+            lech = 1;
+            buoi = 'Tối';
+            break;
+        case '2':
+            lech = 3;
+            buoi = 'Tối';
+            break;
+        case '3':
+            lech = 4;
+            buoi = 'Tối';
+            break;
+        case '4':
+            lech = 5;
+            buoi = 'Chiều';
+            break;
+        case '5':
+            lech = 6;
+            buoi = 'Chiều';
+            break;
+    }
+    var date = new Date(ngay);
+    var dateNextMonday = date.setDate(date.getDate() + lech);
+    var nextMonday = new Date(dateNextMonday);
+    var fullDate = '';
+    switch (soThuTu) {
+        case '0':
+            fullDate = 'Thứ 2 (' + nextMonday.getDate() + '/' + (nextMonday.getMonth() + 1) + ')';
+            break;
+        case '1':
+            fullDate = 'Thứ 3 (' + nextMonday.getDate() + '/' + (nextMonday.getMonth() + 1) + ')';
+            break;
+        case '2':
+            fullDate = 'Thứ 5 (' + nextMonday.getDate() + '/' + (nextMonday.getMonth() + 1) + ')';
+            break;
+        case '3':
+            fullDate = 'Thứ 6 (' + nextMonday.getDate() + '/' + (nextMonday.getMonth() + 1) + ')';
+            break;
+        case '4':
+            fullDate = 'Chiều T7 (' + nextMonday.getDate() + '/' + (nextMonday.getMonth() + 1) + ')';
+            break;
+        case '5':
+            fullDate = 'Chiều CN (' + nextMonday.getDate() + '/' + (nextMonday.getMonth() + 1) + ')';
+            break;
+    }
+    return {
+        ngay: nextMonday.getDate(),
+        thang: nextMonday.getMonth() + 1,
+        nam: nextMonday.getYear() + 1900,
+        fullDate: fullDate,
+        buoi: buoi,
+    };
+}
+
+app.post("/sapXep-test-prep9", upload.fields([
+    // Trong form có field nào thì define chỗ này
+    { name: 'powerpointA1', maxCount: 1 },
+    { name: 'powerpointA2', maxCount: 1 },
+
+    { name: 'ngay', maxCount: 1 },
+    { name: 'Giáo Viên0', maxCount: 1 },
+    { name: 'Giáo Viên1', maxCount: 1 },
+    { name: 'Giáo Viên2', maxCount: 1 },
+    { name: 'Giáo Viên3', maxCount: 1 },
+    { name: 'Giáo Viên4', maxCount: 1 },
+    { name: 'Giáo Viên5', maxCount: 1 },
+]), async(req, res) => {
+    console.log(req.body);
+    console.log(req.files);
+    var ngay = req.body.ngay;
+    var day = new Date(ngay);
+    // var chuNhat = getDay('9', day);
+    var tenFile = 'DaXepLich_' + day.getDate() + '.' + (day.getMonth() + 1);
+    // var khoi = 'Lop' + req.body.khoi;
+    function laBuoiThuNhatTestPrep(soThuTu) {
+        switch (soThuTu) {
+            case '0':
+                return true;
+            case '1':
+                return true;
+            case '2':
+                return true;
+            default:
+                return false;
+        }
+    }
+    // Xu ly
+    for (var soThuTu in [1, 1, 1, 1, 1, 1]) {
+        let keyA = 'Giáo Viên' + soThuTu;
+        // let keyB = 'B' + soThuTu;
+        // let keyC = 'C' + soThuTu;
+        var soThuTuFile = laBuoiThuNhatTestPrep(soThuTu) ? '1' : '2';
+        var functionA = new Promise(async(done, close) => {
+            try {
+                // var result = await copyFile(req.files['powerpointA' + soThuTuFile][0], req.body[keyA], soThuTu, tenFile, day);
+                // Với Xo -> Ném file files[powerpointX(soThuTuFile(o))] 
+                // vào thư mục fields[Xo]
+                // Và đổi tên file thành Blabla_fields[Xo].pptx
+                var dir = tenFile + '/' + req.body[keyA];
+                var day = getDayTestPrep9(ngay, soThuTu);
+                var newName =
+                    day.ngay + '.' + day.thang +
+                    '(' + day.buoi + ')_' +
+                    req.body[keyA] + '_' +
+                    req.files['powerpointA' + soThuTuFile][0].originalname;
+                try {
+                    if (req.files['powerpointA' + soThuTuFile][0] && req.body[keyA]) {
+                        if (!fs.existsSync(dir)) {
+                            await fs.mkdirSync(dir, {
+                                recursive: true
+                            });
+                        }
+                        await fs.copyFileSync(
+                            'uploads/' + req.files['powerpointA' + soThuTuFile][0].originalname,
+                            dir + '/' + newName,
+                        );
+                        done(newName);
+                    } else {
+                        done('');
+                    }
+                } catch (error) {
+                    done(error + ' ' + newName);
+                }
+            } catch (error) {
+                done('');
+                console.error('copyFile error: ' + error);
+            }
+        });
+        await Promise.all([functionA]);
+    }
+
+    // Don dep
+    var arrPromise = [
+        'powerpointA1',
+        'powerpointA2'
+    ].map(file => new Promise(async(ok) => {
+        try {
+            if (req.files[file]) { await fs.unlinkSync('uploads/' + req.files[file][0].originalname); }
+        } catch (error) {
+            // ko quan taam
+        }
+        ok();
+    }));
+    await Promise.all(arrPromise);
+
+    /// Nen lai
+    var output = fs.createWriteStream(tenFile + '.zip');
+    var archive = archiver('zip');
+    output.on('close', function() {
+        deleteFolderRecursive(tenFile);
+    });
+    archive.on('error', function(err) {
+        throw err;
+    });
+    archive.pipe(output);
+    archive.directory(tenFile, false);
+    await archive.finalize();
+
+    // Send file
+    res.status(200).send({ "tenFile": tenFile + '.zip' });
+});
