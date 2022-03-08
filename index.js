@@ -316,71 +316,71 @@ app.post("/xep-lich", upload.fields([
 
     // Check xem lịch cũ có chưa
     let sheetName = `${khoi}_${day.getDate()}.${day.getMonth()+1}.${day.getYear()+1900}`;
-    var lichCu;
-    try {
-        var ahihi = await axios.get(
-            'https://script.google.com/macros/s/AKfycbytw2lBLbHgC3Mdu0zn8CmUSSd6_3A7xtxIjGXs2yKQgkjFLz99cirmrJkZ4dNG9ZO8/exec?sheetName=' + sheetName, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            },
-        );
-        lichCu = ahihi.data;
-    } catch (er) {
-        console.error(er);
-    }
+    // var lichCu;
+    // try {
+    //     var ahihi = await axios.get(
+    //         'https://script.google.com/macros/s/AKfycbytw2lBLbHgC3Mdu0zn8CmUSSd6_3A7xtxIjGXs2yKQgkjFLz99cirmrJkZ4dNG9ZO8/exec?sheetName=' + sheetName, {
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         },
+    //     );
+    //     lichCu = ahihi.data;
+    // } catch (er) {
+    //     console.error(er);
+    // }
 
-    if (lichCu && lichCu.result == 'success') {
-        var lichHoc = '';
-        for (var soThuTu in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) {
-            let keyA = 'A' + soThuTu;
-            let keyB = 'B' + soThuTu;
-            let keyC = 'C' + soThuTu;
-            if (lichCu.data[keyA] != req.body[keyA]) {
-                lichHoc +=
-                    'Đã chuyển khối ' + sheetName +
-                    ' lớp [' + 'A' + '] buổi [' + thuNgayThang(day, soThuTu) +
-                    '] từ [' + lichCu.data[keyA] + '] sang [' + req.body[keyA] + ']\n';
-            }
-            if (lichCu.data[keyB] != req.body[keyB]) {
-                lichHoc +=
-                    'Đã chuyển khối ' + sheetName +
-                    ' lớp [' + 'B' + '] buổi [' + thuNgayThang(day, soThuTu) +
-                    '] từ [' + lichCu.data[keyB] + '] sang [' + req.body[keyB] + ']\n';
-            }
-            if (lichCu.data[keyC] != req.body[keyC]) {
-                lichHoc +=
-                    'Đã chuyển khối ' + sheetName +
-                    ' lớp [' + 'C' + '] buổi [' + thuNgayThang(day, soThuTu) +
-                    '] từ [' + lichCu.data[keyC] + '] sang [' + req.body[keyC] + ']\n';
-            }
-        }
+    // if (lichCu && lichCu.result == 'success') {
+    // var lichHoc = '';
+    // for (var soThuTu in [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) {
+    //     let keyA = 'A' + soThuTu;
+    //     let keyB = 'B' + soThuTu;
+    //     let keyC = 'C' + soThuTu;
+    //     if (lichCu.data[keyA] != req.body[keyA]) {
+    //         lichHoc +=
+    //             'Đã chuyển khối ' + sheetName +
+    //             ' lớp [' + 'A' + '] buổi [' + thuNgayThang(day, soThuTu) +
+    //             '] từ [' + lichCu.data[keyA] + '] sang [' + req.body[keyA] + ']\n';
+    //     }
+    //     if (lichCu.data[keyB] != req.body[keyB]) {
+    //         lichHoc +=
+    //             'Đã chuyển khối ' + sheetName +
+    //             ' lớp [' + 'B' + '] buổi [' + thuNgayThang(day, soThuTu) +
+    //             '] từ [' + lichCu.data[keyB] + '] sang [' + req.body[keyB] + ']\n';
+    //     }
+    //     if (lichCu.data[keyC] != req.body[keyC]) {
+    //         lichHoc +=
+    //             'Đã chuyển khối ' + sheetName +
+    //             ' lớp [' + 'C' + '] buổi [' + thuNgayThang(day, soThuTu) +
+    //             '] từ [' + lichCu.data[keyC] + '] sang [' + req.body[keyC] + ']\n';
+    //     }
+    // }
 
-        // // Gửi mail:
-        // if (lichHoc) {
-        //     var transporter = nodemailer.createTransport({
-        //         service: 'gmail',
-        //         auth: {
-        //             user: 'clevai.xep.lich@gmail.com',
-        //             pass: 'Hoai1234@@'
-        //         }
-        //     });
-        //     var mailOptions2 = {
-        //         from: 'clevai.xep.lich@gmail.com',
-        //         to: 'duchoang191@gmail.com',
-        //         subject: '[' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
-        //         text: lichHoc,
-        //     };
-        //     transporter.sendMail(mailOptions2, function(error, info) {
-        //         if (error) {
-        //             console.log('Email sent failed: ' + error);
-        //         } else {
-        //             console.log('Email sent: ' + info.response);
-        //         }
-        //     });
-        // }
-    }
+    // // Gửi mail:
+    // if (lichHoc) {
+    //     var transporter = nodemailer.createTransport({
+    //         service: 'gmail',
+    //         auth: {
+    //             user: 'clevai.xep.lich@gmail.com',
+    //             pass: 'Hoai1234@@'
+    //         }
+    //     });
+    //     var mailOptions2 = {
+    //         from: 'clevai.xep.lich@gmail.com',
+    //         to: 'duchoang191@gmail.com',
+    //         subject: '[' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
+    //         text: lichHoc,
+    //     };
+    //     transporter.sendMail(mailOptions2, function(error, info) {
+    //         if (error) {
+    //             console.log('Email sent failed: ' + error);
+    //         } else {
+    //             console.log('Email sent: ' + info.response);
+    //         }
+    //     });
+    // }
+    // }
     // Gửi mail:
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -642,64 +642,64 @@ app.post("/xep-lich-test-prep9", upload.fields([
 
     // Check xem lịch cũ có chưa
     let sheetName = `${day.getDate()}.${day.getMonth()+1}.${day.getYear()+1900}`;
-    var lichCu;
-    try {
-        var ahihi = await axios.get(
-            'https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec?sheetName=' + sheetName, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            },
-        );
-        lichCu = ahihi.data;
-    } catch (er) {
-        console.error(er);
-    }
+    // var lichCu;
+    // try {
+    //     var ahihi = await axios.get(
+    //         'https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec?sheetName=' + sheetName, {
+    //             headers: {
+    //                 'Accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         },
+    //     );
+    //     lichCu = ahihi.data;
+    // } catch (er) {
+    //     console.error(er);
+    // }
 
-    if (lichCu && lichCu.result == 'success') {
-        var lichHoc = '';
-        for (var soThuTu in [1, 1, 1, 1, 1, 1]) {
-            let keyA = 'Giáo Viên' + soThuTu;
-            let keyB = 'Back-up' + soThuTu;
-            if (lichCu.data[keyA] != req.body[keyA]) {
-                lichHoc +=
-                    'Đã chuyển khối 9 ngày ' + sheetName +
-                    ' Giáo viên [' + 'Chính thức' + '] buổi [' + getDayTestPrep9(day, soThuTu).fullDate +
-                    '] từ [' + lichCu.data[keyA] + '] sang [' + req.body[keyA] + ']\n';
-            }
-            if (lichCu.data[keyB] != req.body[keyB]) {
-                lichHoc +=
-                    'Đã chuyển khối 9 ngày ' + sheetName +
-                    ' Giáo viên [' + 'Back up' + '] buổi [' + getDayTestPrep9(day, soThuTu).fullDate +
-                    '] từ [' + lichCu.data[keyB] + '] sang [' + req.body[keyB] + ']\n';
-            }
-        }
+    // if (lichCu && lichCu.result == 'success') {
+    //     var lichHoc = '';
+    //     for (var soThuTu in [1, 1, 1, 1, 1, 1]) {
+    //         let keyA = 'Giáo Viên' + soThuTu;
+    //         let keyB = 'Back-up' + soThuTu;
+    //         if (lichCu.data[keyA] != req.body[keyA]) {
+    //             lichHoc +=
+    //                 'Đã chuyển khối 9 ngày ' + sheetName +
+    //                 ' Giáo viên [' + 'Chính thức' + '] buổi [' + getDayTestPrep9(day, soThuTu).fullDate +
+    //                 '] từ [' + lichCu.data[keyA] + '] sang [' + req.body[keyA] + ']\n';
+    //         }
+    //         if (lichCu.data[keyB] != req.body[keyB]) {
+    //             lichHoc +=
+    //                 'Đã chuyển khối 9 ngày ' + sheetName +
+    //                 ' Giáo viên [' + 'Back up' + '] buổi [' + getDayTestPrep9(day, soThuTu).fullDate +
+    //                 '] từ [' + lichCu.data[keyB] + '] sang [' + req.body[keyB] + ']\n';
+    //         }
+    //     }
 
-        // // Gửi mail:
-        // if (lichHoc) {
-        //     var transporter = nodemailer.createTransport({
-        //         service: 'gmail',
-        //         auth: {
-        //             user: 'clevai.xep.lich@gmail.com',
-        //             pass: 'Hoai1234@@'
-        //         }
-        //     });
-        //     var mailOptions2 = {
-        //         from: 'clevai.xep.lich@gmail.com',
-        //         to: 'duchoang191@gmail.com',
-        //         subject: '[Lớp 9 Test_Prep_' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
-        //         text: lichHoc,
-        //     };
-        //     transporter.sendMail(mailOptions2, function(error, info) {
-        //         if (error) {
-        //             console.log('Email sent failed: ' + error);
-        //         } else {
-        //             console.log('Email sent: ' + info.response);
-        //         }
-        //     });
-        // }
-    }
+    // // Gửi mail:
+    // if (lichHoc) {
+    //     var transporter = nodemailer.createTransport({
+    //         service: 'gmail',
+    //         auth: {
+    //             user: 'clevai.xep.lich@gmail.com',
+    //             pass: 'Hoai1234@@'
+    //         }
+    //     });
+    //     var mailOptions2 = {
+    //         from: 'clevai.xep.lich@gmail.com',
+    //         to: 'duchoang191@gmail.com',
+    //         subject: '[Lớp 9 Test_Prep_' + sheetName + '] Yêu cầu thay đổi slide do chuyển lịch học ' + sheetName,
+    //         text: lichHoc,
+    //     };
+    //     transporter.sendMail(mailOptions2, function(error, info) {
+    //         if (error) {
+    //             console.log('Email sent failed: ' + error);
+    //         } else {
+    //             console.log('Email sent: ' + info.response);
+    //         }
+    //     });
+    // }
+    // }
     // Gửi mail:
     var transporter = nodemailer.createTransport({
         service: 'gmail',

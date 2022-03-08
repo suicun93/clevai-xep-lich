@@ -166,6 +166,7 @@
 
         if (khoi == 'tieu_hoc') {
             // Tiểu học
+            themBang(thoiGianBieuHtml, listGiaoVien, null, '3');
             themBang(thoiGianBieuHtml, listGiaoVien, null, '4');
             themBang(thoiGianBieuHtml, listGiaoVien, null, '5');
         } else {
@@ -244,8 +245,19 @@
         let khoi = document.getElementById('khoi').value;
         loading(true);
         if (khoi == 'tieu_hoc') {
+            var khoi3 = '';
             var khoi4 = '';
             var khoi5 = '';
+            var function3 = new Promise(async(done) => {
+                try {
+                    khoi3 = await save({
+                        lop: '3'
+                    });
+                } catch (e) {
+                    console.log(e);
+                }
+                done();
+            });
             var function4 = new Promise(async(done) => {
                 try {
                     khoi4 = await save({
@@ -267,10 +279,12 @@
                 done();
             });
             await Promise.all([
+                function3,
                 function4,
                 function5
             ]);
             loading(false);
+            alert(khoi3 == 'success' ? 'Đã lưu khối 3' : 'Chưa lưu khối 3');
             alert(khoi4 == 'success' ? 'Đã lưu khối 4' : 'Chưa lưu khối 4');
             alert(khoi5 == 'success' ? 'Đã lưu khối 5' : 'Chưa lưu khối 5');
         } else {
@@ -378,8 +392,20 @@
         document.getElementById('listGiaoVien').value = '';
         loading(true);
         if (khoi == 'tieu_hoc') {
+            var khoi3 = false;
             var khoi4 = false;
             var khoi5 = false;
+            var function3 = new Promise(async(done) => {
+                try {
+                    khoi3 = await getLich({
+                        lop: '3',
+                        ngay: ngay,
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+                done();
+            });
             var function4 = new Promise(async(done) => {
                 try {
                     khoi4 = await getLich({
@@ -403,22 +429,24 @@
                 done();
             });
             await Promise.all([
+                function3,
                 function4,
                 function5,
             ]);
             loading(false);
-            if (!khoi4 && !khoi5) {
+            if (!khoi3 && !khoi4 && !khoi5) {
                 alert('Khối [Tiểu học]: Ngày ' + ngay + ' chưa được xếp lịch');
                 return;
             }
             let listGiaoVien = document.getElementById('listGiaoVien');
             listGiaoVien.value = '';
-            listGiaoVienData = khoi4.listGiaoVien ? khoi4.listGiaoVien : khoi5.listGiaoVien;
+            listGiaoVienData = khoi3.listGiaoVien ? khoi3.listGiaoVien : khoi4.listGiaoVien ? khoi4.listGiaoVien : khoi5.listGiaoVien;
             for (const giaoVien of listGiaoVienData.split(',')) {
                 if (giaoVien) {
                     listGiaoVien.value += giaoVien + '\n';
                 }
             }
+            themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi3, '3')
             themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi4, '4')
             themBang(thoiGianBieuHtml, listGiaoVien.value.split('\n'), khoi5, '5')
                 // Them nut
