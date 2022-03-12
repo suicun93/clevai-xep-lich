@@ -626,14 +626,14 @@ app.post("/xep-lich-test-prep9", upload.fields([
     { name: 'Giáo Viên1', maxCount: 1 },
     { name: 'Giáo Viên2', maxCount: 1 },
     { name: 'Giáo Viên3', maxCount: 1 },
-    { name: 'Giáo Viên4', maxCount: 1 },
-    { name: 'Giáo Viên5', maxCount: 1 },
+    // { name: 'Giáo Viên4', maxCount: 1 },
+    // { name: 'Giáo Viên5', maxCount: 1 },
     { name: 'Back-up0', maxCount: 1 },
     { name: 'Back-up1', maxCount: 1 },
     { name: 'Back-up2', maxCount: 1 },
     { name: 'Back-up3', maxCount: 1 },
-    { name: 'Back-up4', maxCount: 1 },
-    { name: 'Back-up5', maxCount: 1 },
+    // { name: 'Back-up4', maxCount: 1 },
+    // { name: 'Back-up5', maxCount: 1 },
 ]), async(req, res) => {
     console.log(req.body);
     console.log(req.files);
@@ -645,7 +645,7 @@ app.post("/xep-lich-test-prep9", upload.fields([
     // var lichCu;
     // try {
     //     var ahihi = await axios.get(
-    //         'https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec?sheetName=' + sheetName, {
+    //         'https://script.google.com/macros/s/AKfycbw5tyyVetGJ_woM8mOrIoJBc0otQGtm7-C7xTq23uOekBa4Jaj-SmPzY-ko9wWVaLk-ww/exec?sheetName=' + sheetName, {
     //             headers: {
     //                 'Accept': 'application/json',
     //                 'Content-Type': 'application/json',
@@ -727,7 +727,7 @@ app.post("/xep-lich-test-prep9", upload.fields([
         req.body['sheetName'] = sheetName;
         let sendData = getFormData(req.body);
         let result = await axios.post(
-            'https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec',
+            'https://script.google.com/macros/s/AKfycbw5tyyVetGJ_woM8mOrIoJBc0otQGtm7-C7xTq23uOekBa4Jaj-SmPzY-ko9wWVaLk-ww/exec',
             sendData, {
                 headers: sendData.getHeaders(),
             },
@@ -818,8 +818,8 @@ app.post("/sapXep-test-prep9", upload.fields([
     { name: 'Giáo Viên1', maxCount: 1 },
     { name: 'Giáo Viên2', maxCount: 1 },
     { name: 'Giáo Viên3', maxCount: 1 },
-    { name: 'Giáo Viên4', maxCount: 1 },
-    { name: 'Giáo Viên5', maxCount: 1 },
+    // { name: 'Giáo Viên4', maxCount: 1 },
+    // { name: 'Giáo Viên5', maxCount: 1 },
 ]), async(req, res) => {
     console.log(req.body);
     console.log(req.files);
@@ -834,8 +834,8 @@ app.post("/sapXep-test-prep9", upload.fields([
                 return true;
             case '1':
                 return true;
-            case '2':
-                return true;
+                // case '2':
+                //     return true;
             default:
                 return false;
         }

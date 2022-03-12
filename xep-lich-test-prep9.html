@@ -63,10 +63,9 @@
     td:nth-child(7n+3) {
         background-color: #f7e3c9;
     }
-    
-    td:nth-child(7n+4) {
+    /* td:nth-child(7n+4) {
         background-color: #f7e3c9;
-    }
+    } */
     
     select {
         font-size: 15px;
@@ -127,8 +126,8 @@
         'Thứ 3',
         'Thứ 5',
         'Thứ 6',
-        'Chiều 7',
-        'Chiều CN',
+        // 'Chiều 7',
+        // 'Chiều CN',
     ];
 
     function generateLich() {
@@ -183,7 +182,7 @@
         var dauHang = document.createElement('td');
         dauHang.innerHTML = cot1;
         hang.appendChild(dauHang);
-        for (const a in [1, 1, 1, 1, 1, 1]) {
+        for (const a in [1, 1, 1, 1]) {
             var td = document.createElement('td');
             var select = document.createElement('select');
             select.setAttribute('id', cot1 + a);
@@ -232,7 +231,7 @@
 
     async function save() {
         var data = new FormData();
-        for (const a in [1, 1, 1, 1, 1, 1, ]) {
+        for (const a in [1, 1, 1, 1]) {
             let keyA = 'Giáo Viên' + a;
             let keyB = 'Back-up' + a;
             data.append(keyA, document.getElementById(keyA).value);
@@ -325,7 +324,7 @@
         try {
             var date = new Date(ngay);
             let sheetName = `${date.getDate()}.${date.getMonth()+1}.${date.getYear()+1900}`;
-            let response = await fetch("https://script.google.com/macros/s/AKfycbw9HLWwLLxpJPTjptLvZ7MflaLYFUtBrikUq2tO6GRQnPgUMXMgviHefTtwXbH8XphqFA/exec?sheetName=" + sheetName, {
+            let response = await fetch("https://script.google.com/macros/s/AKfycbw5tyyVetGJ_woM8mOrIoJBc0otQGtm7-C7xTq23uOekBa4Jaj-SmPzY-ko9wWVaLk-ww/exec?sheetName=" + sheetName, {
                 "method": "GET",
             })
             let res = await response.json();
