@@ -915,3 +915,98 @@ app.post("/sapXep-test-prep9", upload.fields([
     // Send file
     res.status(200).send({ "tenFile": tenFile + '.zip' });
 });
+
+app.post('/livestream', upload.fields([
+    { name: 'link', maxCount: 1 },
+    { name: 'soPhut', maxCount: 1 },
+    { name: 'soMat', maxCount: 1 },
+    { name: 'kenh', maxCount: 1 },
+]), async(req, res) => {
+    try {
+        // Lấy data
+        soMat = parseInt(req.soMat);
+        soPhut = parseInt(req.soPhut);
+        link = getUUID(req.link);
+
+        // Check data
+        if (!soMat || !soPhut) {
+            throw 'Số mắt hoặc số phút bị sai';
+        }
+
+        let result = await buffLiveStream({
+            id: link,
+            soPhut: soPhut,
+            soMat: soMat,
+            kenh: kenh,
+        });
+
+        res.status(200).send({ success: '1', message: result.message });
+    } catch (error) {
+        res.status(200).send({ success: '0', message: error });
+    }
+
+});
+
+
+function getUUID(link) {
+    let arr = link.split('&');
+    for (const str of arr) {
+        if (str && str.startsWith('v=')) {
+            return (str.split('=')[1]);
+        }
+    }
+    throw 'Không tìm thấy ID của link';
+}
+
+async function buffLiveStream({
+    id,
+    soPhut,
+    soMat,
+    kenh,
+}) {
+    return new Promise((done, quit) => {
+        var myHeaders = new Headers();
+        myHeaders.append("authority", "vietnamfb.com");
+        myHeaders.append("accept", "*/*");
+        myHeaders.append("content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        myHeaders.append("x-requested-with", "XMLHttpRequest");
+        myHeaders.append("sec-ch-ua-mobile", "?0");
+        myHeaders.append("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36");
+        myHeaders.append("sec-ch-ua-platform", "\"macOS\"");
+        myHeaders.append("origin", "https://vietnamfb.com");
+        myHeaders.append("sec-fetch-site", "same-origin");
+        myHeaders.append("sec-fetch-mode", "cors");
+        myHeaders.append("sec-fetch-dest", "empty");
+        myHeaders.append("referer", "https://vietnamfb.com/?mc=bufflive");
+        myHeaders.append("accept-language", "en-US,en;q=0.9,vi-VN;q=0.8,vi;q=0.7");
+        myHeaders.append("cookie", "PHPSESSID=s3pv6buql4hvv775arjk77pgp3; _ggwp=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJodHRwczpcL1wvdmlldG5hbWZiLmNvbVwvIiwiaWF0IjoxNjUxMjE3NTM1LCJleHAiOjE2NTEyNjA3MzUsInVzZXJuYW1lIjoiMDM1MjgzNTM2OCJ9.E_1PkKug-IN-fdP_XE8bE8UsEvRRVkgj8eWjtQw5gqw1JH47rCQRV2mj2EZMJqGe-c6DlgqQVzUeKre77MPkyjDYMZDc4YA-ouQo3uH5H7Q4Ge7vn4Ail-nlp1EOeqydfKE4gmikZijza2wkaYcnRSNHueX1M7AI0X-F5jcyO0XICYRlqzYQTyX-hiuVaB1wIQdc0BNN8ox8audmd8mXFy3g896nKJ7Z6hDoj1Iwv-WiHyeil4ipaGRMDmloMW3obqtFmpGxRvqDnLRGK1b_9t5sQo9Ikwx-ofrAuDMW_pyYq2q6J36erg1OYNXvbZoREFAUHTEHqx6rxv7v4O8aSA; __cf_bm=WYKqCTGixV6Zku6kQvNoKKB6cUIMJgOpLwU0THApMo8-1651222244-0-AXRkA87eNzMteEvca5F7HkPOdtuyMRygN+GhW+Fr7g8/2eajQni+QzBg1OTRZlObX6RxXDkRRmM6nCfeuLZdzNDPZBPVso+0UCgmfyunwdiCPqfXZnnn9zUzdNBc4p9DXg==");
+        console.log('Đã chuyển đổi thành công:');
+        var raw =
+            "id=" + id +
+            "&amount=" + soMat +
+            "&channel_number=" + kenh +
+            "&mins=" + soPhut;
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("https://vietnamfb.com/?mc=bufflive&site=buff_live", requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                if (result) {
+                    if (result.success == 1) {
+                        done(result.message);
+                    } else {
+                        quit(result.message);
+                    }
+                } else {
+                    quit('Không thành công');
+                }
+            }).catch(err => quit(err));;
+    });
+
+}
